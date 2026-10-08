@@ -3,4 +3,27 @@
     <string name="welcome_title">Hi there!</string>
     <string name="setup_subtitle">Android Setup</string>
     <string name="next">Next</string>
+    <string name="language_select">Select your language</string>
+    <string name="permissions_title">Permissions</string>
+    <string name="permissions_desc">This app may request the following permissions for setup and service support.</string>
+    <string name="connection_type">What connection type do you want?</string>
+    <string name="service_provider">What Service Provider do you want?</string>
+    <string name="connected_success">Connected Successfully!</string>
+    <string name="can_text_call">You can now Text & Call now.</string>
+    <string name="language_label">Language:</string>
+    <string name="service_provider_label">Service Provider:</string>
+    <string name="status">Status:</string>
+    <string name="status_connected">Connected</string>
+    <string name="messaging">Messaging</string>
+    <string name="phone_dialer">Phone Dialer</string>
+    <string name="settings">Settings</string>
+    <string name="esim_home">E-Sim Home</string>
+    <string name="connection_types">Connection Types</string>
+    <string name="change_sim_service">Change SIM/E-SIM Service Type</string>
+    <string name="themes">Themes</string>
+    <string name="open_dialer">Open Dialer</string>
+    <string name="connection_label">Connection Type:</string>
+    <string name="sim_esim_provider">SIM / E-SIM Provider</string>
+    <string name="phone_dialer_title">Phone Dialer</string>
+    <string name="select_font">Select Font</string>
 </resources>

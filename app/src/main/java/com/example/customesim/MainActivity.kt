@@ -28,12 +28,12 @@ import androidx.compose.material.icons.filled.PermDeviceInformation
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SignalCellularAlt
+import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -52,6 +52,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -100,7 +102,9 @@ enum class AppLanguage(val label: String) {
     GERMAN("German"),
     ARABIC("Arabic"),
     HINDI("Hindi"),
-    CHINESE("Chinese")
+    PORTUGUESE("Portuguese"),
+    CHINESE("Chinese"),
+    JAPANESE("Japanese")
 }
 
 enum class ConnectionType(val label: String) {
@@ -114,6 +118,28 @@ enum class ConnectionType(val label: String) {
     G5("5G")
 }
 
+enum class AppFont(val label: String, val fontFamily: FontFamily) {
+    POPPINS("Poppins", FontFamily(
+        Font(R.font.poppins_regular, FontWeight.Normal),
+        Font(R.font.poppins_bold, FontWeight.Bold)
+    )),
+    DROID_SANS("Droid Sans", FontFamily(
+        Font(R.font.droid_sans_regular, FontWeight.Normal),
+        Font(R.font.droid_sans_bold, FontWeight.Bold)
+    )),
+    ROBOTO("Roboto", FontFamily(
+        Font(R.font.roboto_regular, FontWeight.Normal),
+        Font(R.font.roboto_bold, FontWeight.Bold)
+    )),
+    ROBOTO_REGULAR("Roboto Regular", FontFamily(
+        Font(R.font.roboto_regular, FontWeight.Normal)
+    )),
+    ROBOTO_FLEX("Roboto Flex", FontFamily(
+        Font(R.font.roboto_flex_regular, FontWeight.Normal),
+        Font(R.font.roboto_flex_bold, FontWeight.Bold)
+    ))
+}
+
 @Composable
 private fun AppRoot() {
     var currentStep by remember { mutableIntStateOf(0) }
@@ -121,6 +147,7 @@ private fun AppRoot() {
     var selectedConnection by remember { mutableStateOf(ConnectionType.VOLTE) }
     var selectedProvider by remember { mutableStateOf(Provider("Global Connect", "Worldwide", "5G")) }
     var selectedTheme by remember { mutableStateOf(AppTheme.MATERIAL_YOU) }
+    var selectedFont by remember { mutableStateOf(AppFont.POPPINS) }
     var setupComplete by remember { mutableStateOf(false) }
 
     val permissions = listOf(
@@ -157,25 +184,30 @@ private fun AppRoot() {
     ) {
         when {
             !setupComplete && currentStep == 0 -> WelcomeScreen(
+                selectedFont = selectedFont,
                 onNext = { currentStep = 1 }
             )
             !setupComplete && currentStep == 1 -> LanguageSelectionScreen(
                 selectedLanguage = selectedLanguage,
+                selectedFont = selectedFont,
                 onLanguageSelected = { selectedLanguage = it },
                 onNext = { currentStep = 2 }
             )
             !setupComplete && currentStep == 2 -> PermissionsScreen(
                 permissions = permissions,
+                selectedFont = selectedFont,
                 onNext = { currentStep = 3 }
             )
             !setupComplete && currentStep == 3 -> ConnectionTypeScreen(
                 selectedConnection = selectedConnection,
+                selectedFont = selectedFont,
                 onConnectionSelected = { selectedConnection = it },
                 onNext = { currentStep = 4 }
             )
             !setupComplete && currentStep == 4 -> ProviderSelectionScreen(
                 providers = providers,
                 selectedProvider = selectedProvider,
+                selectedFont = selectedFont,
                 onProviderSelected = { selectedProvider = it },
                 onNext = {
                     setupComplete = true
@@ -187,14 +219,19 @@ private fun AppRoot() {
                 selectedConnection = selectedConnection,
                 selectedProvider = selectedProvider,
                 selectedTheme = selectedTheme,
-                onThemeChanged = { selectedTheme = it }
+                selectedFont = selectedFont,
+                onThemeChanged = { selectedTheme = it },
+                onFontChanged = { selectedFont = it }
             )
         }
     }
 }
 
 @Composable
-private fun WelcomeScreen(onNext: () -> Unit) {
+private fun WelcomeScreen(
+    selectedFont: AppFont,
+    onNext: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -207,14 +244,14 @@ private fun WelcomeScreen(onNext: () -> Unit) {
         ) {
             Text(
                 text = "Hi there!",
-                style = MaterialTheme.typography.displaySmall,
+                style = MaterialTheme.typography.displaySmall.copy(fontFamily = selectedFont.fontFamily),
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Android Setup",
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleLarge.copy(fontFamily = selectedFont.fontFamily),
                 color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(32.dp))
@@ -223,7 +260,7 @@ private fun WelcomeScreen(onNext: () -> Unit) {
                 shape = RoundedCornerShape(14.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Next")
+                Text(text = "Next", fontFamily = selectedFont.fontFamily)
             }
         }
     }
@@ -232,6 +269,7 @@ private fun WelcomeScreen(onNext: () -> Unit) {
 @Composable
 private fun LanguageSelectionScreen(
     selectedLanguage: AppLanguage,
+    selectedFont: AppFont,
     onLanguageSelected: (AppLanguage) -> Unit,
     onNext: () -> Unit
 ) {
@@ -243,7 +281,7 @@ private fun LanguageSelectionScreen(
     ) {
         Text(
             text = "Select your language",
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = selectedFont.fontFamily),
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(20.dp))
@@ -273,7 +311,7 @@ private fun LanguageSelectionScreen(
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text(text = language.label)
+                        Text(text = language.label, fontFamily = selectedFont.fontFamily)
                     }
                 }
             }
@@ -284,7 +322,7 @@ private fun LanguageSelectionScreen(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp)
         ) {
-            Text(text = "Next")
+            Text(text = "Next", fontFamily = selectedFont.fontFamily)
         }
     }
 }
@@ -292,6 +330,7 @@ private fun LanguageSelectionScreen(
 @Composable
 private fun PermissionsScreen(
     permissions: List<PermissionItem>,
+    selectedFont: AppFont,
     onNext: () -> Unit
 ) {
     Column(
@@ -301,13 +340,13 @@ private fun PermissionsScreen(
     ) {
         Text(
             text = "Permissions",
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = selectedFont.fontFamily),
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = "This app may request the following permissions for setup and service support.",
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyMedium.copy(fontFamily = selectedFont.fontFamily),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(18.dp))
@@ -326,10 +365,10 @@ private fun PermissionsScreen(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(permission.title, fontWeight = FontWeight.SemiBold)
+                        Text(permission.title, fontWeight = FontWeight.SemiBold, fontFamily = selectedFont.fontFamily)
                         Text(
                             permission.description,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodySmall.copy(fontFamily = selectedFont.fontFamily),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -346,7 +385,7 @@ private fun PermissionsScreen(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp)
         ) {
-            Text(text = "Next")
+            Text(text = "Next", fontFamily = selectedFont.fontFamily)
         }
     }
 }
@@ -354,6 +393,7 @@ private fun PermissionsScreen(
 @Composable
 private fun ConnectionTypeScreen(
     selectedConnection: ConnectionType,
+    selectedFont: AppFont,
     onConnectionSelected: (ConnectionType) -> Unit,
     onNext: () -> Unit
 ) {
@@ -365,7 +405,7 @@ private fun ConnectionTypeScreen(
     ) {
         Text(
             text = "What connection type do you want?",
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = selectedFont.fontFamily),
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(20.dp))
@@ -387,7 +427,7 @@ private fun ConnectionTypeScreen(
                         onClick = null
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text(type.label, style = MaterialTheme.typography.bodyLarge)
+                    Text(type.label, style = MaterialTheme.typography.bodyLarge.copy(fontFamily = selectedFont.fontFamily))
                 }
             }
         }
@@ -397,7 +437,7 @@ private fun ConnectionTypeScreen(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp)
         ) {
-            Text(text = "Next")
+            Text(text = "Next", fontFamily = selectedFont.fontFamily)
         }
     }
 }
@@ -406,6 +446,7 @@ private fun ConnectionTypeScreen(
 private fun ProviderSelectionScreen(
     providers: List<Provider>,
     selectedProvider: Provider,
+    selectedFont: AppFont,
     onProviderSelected: (Provider) -> Unit,
     onNext: () -> Unit
 ) {
@@ -417,7 +458,7 @@ private fun ProviderSelectionScreen(
     ) {
         Text(
             text = "What Service Provider do you want?",
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = selectedFont.fontFamily),
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(20.dp))
@@ -433,9 +474,9 @@ private fun ProviderSelectionScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(provider.name, fontWeight = FontWeight.Bold)
-                        Text(provider.country, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("Network: ${provider.networkType}")
+                        Text(provider.name, fontWeight = FontWeight.Bold, fontFamily = selectedFont.fontFamily)
+                        Text(provider.country, color = MaterialTheme.colorScheme.onSurfaceVariant, fontFamily = selectedFont.fontFamily)
+                        Text("Network: ${provider.networkType}", fontFamily = selectedFont.fontFamily)
                     }
                 }
             }
@@ -446,7 +487,7 @@ private fun ProviderSelectionScreen(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(14.dp)
         ) {
-            Text("Next")
+            Text("Next", fontFamily = selectedFont.fontFamily)
         }
     }
 }
@@ -458,7 +499,9 @@ private fun HomeScreen(
     selectedConnection: ConnectionType,
     selectedProvider: Provider,
     selectedTheme: AppTheme,
-    onThemeChanged: (AppTheme) -> Unit
+    selectedFont: AppFont,
+    onThemeChanged: (AppTheme) -> Unit,
+    onFontChanged: (AppFont) -> Unit
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("Messaging", "Phone Dialer", "Settings")
@@ -467,7 +510,7 @@ private fun HomeScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("E-Sim Home")
+                    Text("E-Sim Home", fontFamily = selectedFont.fontFamily)
                 }
             )
         }
@@ -482,7 +525,7 @@ private fun HomeScreen(
                     Tab(
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
-                        text = { Text(title) }
+                        text = { Text(title, fontFamily = selectedFont.fontFamily) }
                     )
                 }
             }
@@ -490,14 +533,17 @@ private fun HomeScreen(
             when (selectedTab) {
                 0 -> MessagingTab(
                     selectedLanguage = selectedLanguage,
-                    selectedProvider = selectedProvider
+                    selectedProvider = selectedProvider,
+                    selectedFont = selectedFont
                 )
-                1 -> PhoneTab(selectedConnection = selectedConnection)
+                1 -> PhoneTab(selectedConnection = selectedConnection, selectedFont = selectedFont)
                 2 -> SettingsTab(
                     selectedTheme = selectedTheme,
-                    onThemeChanged = onThemeChanged
+                    selectedFont = selectedFont,
+                    onThemeChanged = onThemeChanged,
+                    onFontChanged = onFontChanged
                 )
-                else -> MessagingTab(selectedLanguage, selectedProvider)
+                else -> MessagingTab(selectedLanguage, selectedProvider, selectedFont)
             }
         }
     }
@@ -506,7 +552,8 @@ private fun HomeScreen(
 @Composable
 private fun MessagingTab(
     selectedLanguage: AppLanguage,
-    selectedProvider: Provider
+    selectedProvider: Provider,
+    selectedFont: AppFont
 ) {
     Column(
         modifier = Modifier
@@ -524,14 +571,14 @@ private fun MessagingTab(
         Spacer(modifier = Modifier.height(18.dp))
         Text(
             text = "Connected Successfully!",
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = selectedFont.fontFamily),
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = "You can now Text & Call now.",
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyLarge.copy(fontFamily = selectedFont.fontFamily),
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(18.dp))
@@ -540,16 +587,16 @@ private fun MessagingTab(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Language: ${selectedLanguage.label}")
-                Text("Service Provider: ${selectedProvider.name}")
-                Text("Status: Connected")
+                Text("Language: ${selectedLanguage.label}", fontFamily = selectedFont.fontFamily)
+                Text("Service Provider: ${selectedProvider.name}", fontFamily = selectedFont.fontFamily)
+                Text("Status: Connected", fontFamily = selectedFont.fontFamily)
             }
         }
     }
 }
 
 @Composable
-private fun PhoneTab(selectedConnection: ConnectionType) {
+private fun PhoneTab(selectedConnection: ConnectionType, selectedFont: AppFont) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -566,17 +613,17 @@ private fun PhoneTab(selectedConnection: ConnectionType) {
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "Phone Dialer",
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = selectedFont.fontFamily),
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Text("Connection Type: ${selectedConnection.label}")
+        Text("Connection Type: ${selectedConnection.label}", fontFamily = selectedFont.fontFamily)
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = { },
             shape = RoundedCornerShape(14.dp)
         ) {
-            Text("Open Dialer")
+            Text("Open Dialer", fontFamily = selectedFont.fontFamily)
         }
     }
 }
@@ -584,55 +631,139 @@ private fun PhoneTab(selectedConnection: ConnectionType) {
 @Composable
 private fun SettingsTab(
     selectedTheme: AppTheme,
-    onThemeChanged: (AppTheme) -> Unit
+    selectedFont: AppFont,
+    onThemeChanged: (AppTheme) -> Unit,
+    onFontChanged: (AppFont) -> Unit
 ) {
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp),
         verticalArrangement = Arrangement.Top
     ) {
-        Text(
-            text = "Settings",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(18.dp))
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Connection Types")
-                Text("Change SIM/E-SIM Service Type")
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
-                Text("Themes")
-                Spacer(modifier = Modifier.height(8.dp))
-                AppTheme.entries.forEach { theme ->
+        item {
+            Text(
+                text = "Settings",
+                style = MaterialTheme.typography.headlineSmall.copy(fontFamily = selectedFont.fontFamily),
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(18.dp))
+        }
+
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Connection Types", fontFamily = selectedFont.fontFamily)
+                    Text("Change SIM/E-SIM Service Type", fontFamily = selectedFont.fontFamily)
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 6.dp),
+                            .padding(bottom = 12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        RadioButton(
-                            selected = selectedTheme == theme,
-                            onClick = { onThemeChanged(theme) }
+                        Icon(
+                            imageVector = Icons.Default.TextFields,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(theme.label)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            "Select Font",
+                            style = MaterialTheme.typography.titleMedium.copy(fontFamily = selectedFont.fontFamily),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Divider(modifier = Modifier.padding(bottom = 12.dp))
+                    AppFont.entries.forEach { font ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = selectedFont == font,
+                                onClick = { onFontChanged(font) }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(font.label, fontFamily = font.fontFamily)
+                        }
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("SIM / E-SIM Provider")
-                Text("Global Connect")
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Settings > Change SIM/E-SIM Service Type")
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            "Themes",
+                            style = MaterialTheme.typography.titleMedium.copy(fontFamily = selectedFont.fontFamily),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Divider(modifier = Modifier.padding(bottom = 12.dp))
+                    AppTheme.entries.forEach { theme ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = selectedTheme == theme,
+                                onClick = { onThemeChanged(theme) }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(theme.label, fontFamily = selectedFont.fontFamily)
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("SIM / E-SIM Provider", fontFamily = selectedFont.fontFamily)
+                    Text("Global Connect", fontFamily = selectedFont.fontFamily)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Settings > Change SIM/E-SIM Service Type", fontFamily = selectedFont.fontFamily)
+                }
             }
         }
     }
