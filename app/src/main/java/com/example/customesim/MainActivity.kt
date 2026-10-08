@@ -23,7 +23,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.NetworkCell
 import androidx.compose.material.icons.filled.PermDeviceInformation
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Settings
@@ -52,12 +51,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.customesim.ui.theme.CustomESimTheme
 
 class MainActivity : ComponentActivity() {
@@ -71,13 +68,13 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private data class PermissionItem(
+data class PermissionItem(
     val title: String,
     val description: String,
     val granted: Boolean = false
 )
 
-private data class Provider(
+data class Provider(
     val name: String,
     val country: String,
     val networkType: String
@@ -119,25 +116,11 @@ enum class ConnectionType(val label: String) {
 }
 
 enum class AppFont(val label: String, val fontFamily: FontFamily) {
-    POPPINS("Poppins", FontFamily(
-        Font(R.font.poppins_regular, FontWeight.Normal),
-        Font(R.font.poppins_bold, FontWeight.Bold)
-    )),
-    DROID_SANS("Droid Sans", FontFamily(
-        Font(R.font.droid_sans_regular, FontWeight.Normal),
-        Font(R.font.droid_sans_bold, FontWeight.Bold)
-    )),
-    ROBOTO("Roboto", FontFamily(
-        Font(R.font.roboto_regular, FontWeight.Normal),
-        Font(R.font.roboto_bold, FontWeight.Bold)
-    )),
-    ROBOTO_REGULAR("Roboto Regular", FontFamily(
-        Font(R.font.roboto_regular, FontWeight.Normal)
-    )),
-    ROBOTO_FLEX("Roboto Flex", FontFamily(
-        Font(R.font.roboto_flex_regular, FontWeight.Normal),
-        Font(R.font.roboto_flex_bold, FontWeight.Bold)
-    ))
+    POPPINS("Poppins", FontFamily.SansSerif),
+    DROID_SANS("Droid Sans", FontFamily.SansSerif),
+    ROBOTO("Roboto", FontFamily.SansSerif),
+    ROBOTO_REGULAR("Roboto Regular", FontFamily.Default),
+    ROBOTO_FLEX("Roboto Flex", FontFamily.Serif)
 }
 
 @Composable
@@ -183,10 +166,7 @@ private fun AppRoot() {
         color = MaterialTheme.colorScheme.background
     ) {
         when {
-            !setupComplete && currentStep == 0 -> WelcomeScreen(
-                selectedFont = selectedFont,
-                onNext = { currentStep = 1 }
-            )
+            !setupComplete && currentStep == 0 -> WelcomeScreen(selectedFont, onNext = { currentStep = 1 })
             !setupComplete && currentStep == 1 -> LanguageSelectionScreen(
                 selectedLanguage = selectedLanguage,
                 selectedFont = selectedFont,
@@ -228,10 +208,7 @@ private fun AppRoot() {
 }
 
 @Composable
-private fun WelcomeScreen(
-    selectedFont: AppFont,
-    onNext: () -> Unit
-) {
+private fun WelcomeScreen(selectedFont: AppFont, onNext: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -531,18 +508,9 @@ private fun HomeScreen(
             }
 
             when (selectedTab) {
-                0 -> MessagingTab(
-                    selectedLanguage = selectedLanguage,
-                    selectedProvider = selectedProvider,
-                    selectedFont = selectedFont
-                )
-                1 -> PhoneTab(selectedConnection = selectedConnection, selectedFont = selectedFont)
-                2 -> SettingsTab(
-                    selectedTheme = selectedTheme,
-                    selectedFont = selectedFont,
-                    onThemeChanged = onThemeChanged,
-                    onFontChanged = onFontChanged
-                )
+                0 -> MessagingTab(selectedLanguage, selectedProvider, selectedFont)
+                1 -> PhoneTab(selectedConnection, selectedFont)
+                2 -> SettingsTab(selectedTheme, selectedFont, onThemeChanged, onFontChanged)
                 else -> MessagingTab(selectedLanguage, selectedProvider, selectedFont)
             }
         }
@@ -619,10 +587,7 @@ private fun PhoneTab(selectedConnection: ConnectionType, selectedFont: AppFont) 
         Spacer(modifier = Modifier.height(8.dp))
         Text("Connection Type: ${selectedConnection.label}", fontFamily = selectedFont.fontFamily)
         Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = { },
-            shape = RoundedCornerShape(14.dp)
-        ) {
+        Button(onClick = { }) {
             Text("Open Dialer", fontFamily = selectedFont.fontFamily)
         }
     }
